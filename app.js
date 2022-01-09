@@ -1,15 +1,50 @@
 const express = require("express");
-const expressLayouts = require('express');
-const path = require('path');
+const expressLayouts = require("express-ejs-layouts");
+const path = require("path");
+const mongoose = require('mongoose');
+const flash = require('connect-flash');
+const session = require('express-session');
+var passport = require('passport');
 const app = express();
+//DB config
+const db = require('./config/keys').MongoURI;
+const passport = require("./config/Passport");
+mongoose.connect(db,{useNewUrlParser : true})
+.then(()=>console.log('mongoDB Connected ... '))
+.catch(err => console.log(err));
 
-app.use(expressLayouts)
+//Ejs
+app.use(expressLayouts);
+app.set("view engine", "ejs");
 
-app.set('view engine ','ejs');
-app.set('views', path.join(__dirname, './views'));
+//Bodyparser
+app.use(express.urlencoded({extended:false}));
+
+//Express session 
+app.use(session({
+    secret:'secret',
+    resave:true,
+    saveUninitialized:true
+}));
+
+//Passport middleware
+app.use(passport.initialize())
+app.use(passport.session)
+
+//connect flash (difffercern color)
+app.use(flash());
+
+//global varaible colors
+app.use((req,res ,next ) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    next();
+
+})
+
 //Routes
 app.use("/", require("./routes/index"));
 app.use("/users", require("./routes/user"));
 
-const PORT =  5000;
+const PORT = 5000;
 app.listen(PORT, console.log(`server started on ${PORT}`));
