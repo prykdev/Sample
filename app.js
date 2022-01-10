@@ -4,11 +4,15 @@ const path = require("path");
 const mongoose = require('mongoose');
 const flash = require('connect-flash');
 const session = require('express-session');
-var passport = require('passport');
+const passport = require('passport');
+
+//Passprt config
+require("./config/Passport")(passport);
+
+
 const app = express();
 //DB config
 const db = require('./config/keys').MongoURI;
-const passport = require("./config/Passport");
 mongoose.connect(db,{useNewUrlParser : true})
 .then(()=>console.log('mongoDB Connected ... '))
 .catch(err => console.log(err));
@@ -29,7 +33,7 @@ app.use(session({
 
 //Passport middleware
 app.use(passport.initialize())
-app.use(passport.session)
+app.use(passport.session())
 
 //connect flash (difffercern color)
 app.use(flash());
@@ -38,6 +42,7 @@ app.use(flash());
 app.use((req,res ,next ) => {
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
     next();
 
 })

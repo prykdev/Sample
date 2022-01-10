@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 var bcrypt = require("bcryptjs");
-
+const passport = require('passport');
 //User models
 const User = require("../modules/user");
 //Login page
@@ -77,5 +77,16 @@ router.post("/register", (req, res) => {
     );
   }
 });
+
+//Login Handel 
+
+router.post('./login',(req,res,next)=>{
+ passport.authenticate('local',{
+  successRedirect:'./dashboard',
+  failureRedirect: './users/login',
+  successFlash:true
+ })(req,res,next);
+
+ })
 
 module.exports = router;
